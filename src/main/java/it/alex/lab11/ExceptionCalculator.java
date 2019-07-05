@@ -1,0 +1,10 @@
+package it.alex.lab11;
+
+public class ExceptionCalculator extends RuntimeException {
+
+    public ExceptionCalculator (RuntimeException message){
+        super(message);
+    }
+
+
+}

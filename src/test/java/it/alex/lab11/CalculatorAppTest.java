@@ -2,40 +2,67 @@ package it.alex.lab11;
 
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Map;
+import org.junit.Assert.*;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 
 public class CalculatorAppTest {
 
-    public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
-        CalculatorApp calcApp = new CalculatorApp();
-        ConverterRPN calcRPN = new ConverterRPN();
-        ReadyInput readyInp = new ReadyInput();
-        ExpressionCalculator expressionCalc = new ExpressionCalculator();
+    Calculator calculator = new Calculator();
 
-        String input = "( (4-9) *  2+15  ) /2-9*(2+1  )";
-        InputStream in = new ByteArrayInputStream(input.getBytes());
-        System.setIn(in);
-        String[] expectedInput = {"(", "(", "4", "-", "9", ")", "*", "2", "+", "15", ")", "/", "2", "-", "9", "*", "(", "2", "+", "1", ")"};
-        String[] actualInput = readyInp.readyInput();
-        assertArrayEquals("Wrong input", expectedInput, actualInput);
-        String expectedRPN = "4 9 - 2 * 15 + 2 / 9 2 1 + * - ";
-        Field field = CalculatorApp.class.getDeclaredField("priorityMap");
-        field.setAccessible(true);
-        Map<String, Integer> map = (Map<String, Integer>) field.get(calcApp);
-        String actualRPN = calcRPN.getExpression(actualInput, map);
-        assertEquals("Wrong convert RPN", expectedRPN, actualRPN);
-        String expectedResult = "-24.5";
-        String actualResult = expressionCalc.expressionEvaluation(actualRPN);
-        assertEquals("Error", expectedResult,actualResult);
+    @Test(expected = ExceptionCalculator.class)
+    public void exceptionCheckWhenEnterLetter() {
+        String input = "((4-   9)  *2+15   )/  2  - 9*(2    a  + 1)";
 
+        calculator.calculate(input);
     }
+
+    @Test(expected = ExceptionCalculator.class)
+    public void exceptionCheckWhenEnterBracket() {
+        String input = "((4-   9)  *2+15   )/  2  - 9*(2    (  + 1)";
+
+        calculator.calculate(input);
+    }
+
+    @Test(expected = ExceptionCalculator.class)
+    public void exceptionCheckWhenEnterOperationSymbol() {
+        String input = "((4-   9)  *2+15   )/  2  - 9*(2    *  + 1)";
+
+        calculator.calculate(input);
+    }
+
+    @Test
+    public void calculationTest() {
+        double expected1 = -24.5;
+        double expected2 = 9;
+        double expected3 = 10;
+        double expected4 = 0;
+        double expected5 = -24.5;
+        String input1 = "((4-   9)  *2+15   )/  2  - 9*(2      + 1)";
+        String input2 = "( 2  +  2 *  2) * ( 9 / 3 * 2 - 3) / 2";
+        String input3 = "(  (  (  ( 4 - 2 )*3 )/ 2) +5 *9 /3 +2 )/ 2";
+        String input4 = "()";
+        String input5 = "((4-   9)  *2+15   )/  2  - 9*(2      + 1)";
+
+        double actual1 = calculator.calculate(input1);
+        double actual2 = calculator.calculate(input2);
+        double actual3 = calculator.calculate(input3);
+        double actual4 = calculator.calculate(input4);
+        double actual5 = calculator.calculate(input5);
+
+        assertEquals(expected1, actual1, 0.0);
+        assertEquals(expected2, actual2, 0.0);
+        assertEquals(expected3, actual3, 0.0);
+        assertEquals(expected4, actual4, 0.0);
+        assertEquals(expected5, actual5, 0.0);
+    }
+
+
+    //  ((4-   9)  *2+15   )/  2  - 9*(2      + 1)
+//-24.5
+//4 9 - 2 * 15 + 2 / 9 2 1 + * -
+//
 
     //((4-9)*2+15)/2-9*(2+1)
     //-24.5
