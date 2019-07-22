@@ -1,54 +1,109 @@
 package it.alex.lab11;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
-
+@RunWith(Parameterized.class)
 public class CalculatorAppTest {
+    @Parameterized.Parameters(name = "{index}:Expression{0}={1}")
+    public static Iterable<Object[]> data() {
+        Object[][] data = new Object[][]{
+                {"1+1*(3-2)", 2},
+                {"2+2*2", 6},
+                {"((4-   9)  *2+15   )/  2  - 9*(2      + 1)", -24.5},
+                {"( 2  +  2 *  2) * ( 9 / 3 * 2 - 3) / 2", 9},
+                {"(  (  (  ( 4 - 2 )*3 )/ 2) +5 *9 /3 +2 )/ 2", 10},
+                {"5+  9  *2  -( 8+ 4 ) * 9/     3 ", -13}
+        };
+        return Arrays.asList(data);
+    }
+
+    private String expression;
+    private double expected;
+
+    public CalculatorAppTest(String expression, double expected) {
+        this.expression = expression;
+        this.expected = expected;
+    }
 
     Calculator calculator = new Calculator();
 
-    @Test(expected = ExceptionCalculator.class)
-    public void exceptionCheckWhenEnterLetter() {
-        String input = "((4-   9)  *2+15   )/  2  - 9*(2    a  + 1)";
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-        calculator.calculate(input);
+
+    @Test
+    public void exceptionCheckTest1() {
+        thrown.expect(ExceptionCalculator.class);
+        thrown.expectMessage("RuntimeException");
+
+        calculator.calculate("1+1(1)");
     }
 
-    @Test(expected = ExceptionCalculator.class)
-    public void exceptionCheckWhenEnterBracket() {
-        String input = "((4-   9)  *2+15   )/  2  - 9*(2    (  + 1)";
+    @Test
+    public void exceptionCheckTest2() {
+        thrown.expect(ExceptionCalculator.class);
+        thrown.expectMessage("RuntimeException");
 
-        calculator.calculate(input);
+        calculator.calculate("((4-   9)  *2+15   )/  2  - 9*(2    a  + 1)");
     }
 
-    @Test(expected = ExceptionCalculator.class)
-    public void exceptionCheckWhenEnterOperationSymbol() {
-        String input = "((4-   9)  *2+15   )/  2  - 9*(2    *  + 1)";
+    @Test
+    public void exceptionCheckTest3() {
+        thrown.expect(ExceptionCalculator.class);
+        thrown.expectMessage("EmptyStack");
 
-        calculator.calculate(input);
+        calculator.calculate("((4-   9)  *2+15   )/  2  - 9*(2    (  + 1)");
+    }
+
+    @Test
+    public void exceptionCheckTest4() {
+        thrown.expect(ExceptionCalculator.class);
+        thrown.expectMessage("RuntimeException");
+
+        calculator.calculate("((4-   9)  *2+15   )/  2  - 9*(2    *  + 1)");
+    }
+
+    @Test
+    public void exceptionCheckTest5() {
+        thrown.expect(ExceptionCalculator.class);
+        thrown.expectMessage("RuntimeException");
+
+        calculator.calculate("1+1*5+2*(5+)");
+    }
+ @Test
+    public void exceptionCheckTest6() {
+        thrown.expect(ExceptionCalculator.class);
+        thrown.expectMessage("EmptyStack");
+
+        calculator.calculate("(2*3)+((2-1)/2");
+    }
+@Test
+    public void exceptionCheckTest7() {
+        thrown.expect(ExceptionCalculator.class);
+        thrown.expectMessage("RuntimeException");
+
+        calculator.calculate("5+2*");
+    }
+@Test
+    public void exceptionCheckTest8() {
+        thrown.expect(ExceptionCalculator.class);
+        thrown.expectMessage("EmptyStack");
+
+        calculator.calculate("(4-2)+7)/2");
     }
 
     @Test
     public void calculationTest() {
-        double expected1 = -24.5;
-        double expected2 = 9;
-        double expected3 = 10;
-        double expected4 = -13;
-        String input1 = "((4-   9)  *2+15   )/  2  - 9*(2      + 1)";
-        String input2 = "( 2  +  2 *  2) * ( 9 / 3 * 2 - 3) / 2";
-        String input3 = "(  (  (  ( 4 - 2 )*3 )/ 2) +5 *9 /3 +2 )/ 2";
-        String input4 = "5+  9  *2  -( 8+ 4 ) * 9/     3 ";
-
-        double actual1 = calculator.calculate(input1);
-        double actual2 = calculator.calculate(input2);
-        double actual3 = calculator.calculate(input3);
-        double actual4 = calculator.calculate(input4);
-
-        assertEquals(expected1, actual1, 0.0);
-        assertEquals(expected2, actual2, 0.0);
-        assertEquals(expected3, actual3, 0.0);
-        assertEquals(expected4, actual4, 0.0);
+        assertEquals(expected, calculator.calculate(expression), 0.0);
     }
+
+
 }

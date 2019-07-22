@@ -115,8 +115,6 @@ public class Calculator {
         while (!operatorStack.empty()) {
             output += operatorStack.pop() + " ";
         }
-        System.out.println(countNumber);
-        System.out.println(countOperate);
         return output;
     }
 
@@ -127,6 +125,9 @@ public class Calculator {
                 flag = true;
             } else if (("+-/*".contains(array[i])) && flag == true) {
                 flag = false;
+
+            } else if ("()".contains(array[i])) {
+                continue;
             } else {
                 flag = false;
                 break;
